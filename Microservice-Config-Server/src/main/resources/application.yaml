@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: Microservice-Config-Server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Lucascabj4710/microservices-config.git
+          clone-on-start: true
+          default-label: main
+server:
+  port: 8888
+
+
+eureka:
+  client:
+    enabled: false
