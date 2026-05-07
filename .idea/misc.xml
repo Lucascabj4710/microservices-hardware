@@ -8,6 +8,7 @@
         <option value="$PROJECT_DIR$/Microservice-Eureka-Server/pom.xml" />
         <option value="$PROJECT_DIR$/Microservice-Item/pom.xml" />
         <option value="$PROJECT_DIR$/Microservice-Product/pom.xml" />
+        <option value="$PROJECT_DIR$/Microservice-Order/pom.xml" />
       </list>
     </option>
   </component>

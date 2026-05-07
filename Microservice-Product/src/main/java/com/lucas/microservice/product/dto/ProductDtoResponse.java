@@ -11,22 +11,11 @@ import lombok.Setter;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class ProductDto {
+public class ProductDtoResponse {
 
-    @NotBlank(message = "El nombre del producto es obligatorio")
     private String name;
-
-    @NotBlank(message = "La marca del producto es obligatoria")
     private String brand;
-
-    @NotNull(message = "El stock es obligatorio")
-    @Min(value = 0, message = "El stock debe ser mayor o igual a 0")
     private Integer stock;
-
-    @NotNull(message = "El precio es obligatorio")
-    @DecimalMin(value = "0.0", message = "El precio debe ser mayor o igual a 0")
     private Double price;
-
-    @NotNull(message = "El estado es obligatorio")
     private Boolean available;
 }

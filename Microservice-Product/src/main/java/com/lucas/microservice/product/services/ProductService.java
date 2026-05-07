@@ -1,14 +1,17 @@
 package com.lucas.microservice.product.services;
 
 import com.lucas.microservice.product.dto.ProductDto;
+import com.lucas.microservice.product.dto.ProductDtoResponse;
 import com.lucas.microservice.product.entities.Product;
+import com.lucas.microservice.product.exception.InvalidProductStateException;
+import com.lucas.microservice.product.exception.InvalidStockException;
+import com.lucas.microservice.product.exception.ProductNotFoundException;
 import com.lucas.microservice.product.mapper.ProductMapper;
 import com.lucas.microservice.product.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class ProductService{
@@ -22,16 +25,23 @@ public class ProductService{
     }
 
     @Transactional(readOnly = true)
-    public ProductDto getProduct(Long id){
+    public ProductDtoResponse getProduct(Long id){
         return productRepository.findById(id)
-                .map(productMapper::toProductDto)
-                .orElseThrow(()-> new RuntimeException("Producto no encontrado"));
+                .map(productMapper::toProductDtoResponse)
+                .orElseThrow(()-> new ProductNotFoundException("Producto no encontrado"));
     }
 
     @Transactional(readOnly = true)
-    public List<ProductDto> getProducts(){
+    public ProductDtoResponse getProductByName(String name){
+        return productRepository.findByName(name).map(productMapper::toProductDtoResponse)
+                .orElseThrow(()-> new ProductNotFoundException("Producto no encontrado con el nombre " + name));
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<ProductDtoResponse> getProducts(){
         return productRepository.findAll()
-                .stream().map(productMapper::toProductDto)
+                .stream().map(productMapper::toProductDtoResponse)
                 .toList();
     }
 
@@ -70,9 +80,28 @@ public class ProductService{
         productRepository.save(product);
     }
 
+    @Transactional
+    public void addStock(Long idProduct, Integer quantity){
+
+        if (quantity == null || quantity <= 0) {
+            throw new InvalidStockException("La cantidad ha ingresar debe ser mnyor a 0 ");
+        }
+
+        Product product = findProductOrThrow(idProduct);
+
+        if (product.getStock() == null) {
+            throw new InvalidProductStateException("El stock del producto no puede ser nulo");
+        }
+
+        product.setStock(product.getStock() + quantity);
+
+        productRepository.save(product);
+    }
+
+
     public Product findProductOrThrow(Long idProduct){
         return productRepository.findById(idProduct)
-                .orElseThrow(()-> new NoSuchElementException("El producto con el id solicitado, no existe"));
+                .orElseThrow(()-> new ProductNotFoundException("El producto con el id solicitado, no existe"));
     }
 
 }
