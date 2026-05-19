@@ -17,4 +17,7 @@ public class Order {
     private Long id;
     private Double totalPrice;
 
+    @Enumerated(EnumType.STRING)
+    private StatusOrder statusOrder;
+
 }

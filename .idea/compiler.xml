@@ -7,6 +7,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="Microservice-Gateway" />
         <module name="Microservice-Config-Server" />
         <module name="Microservice-Eureka-Server" />
       </profile>
@@ -17,20 +18,10 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.3/mapstruct-processor-1.6.3.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.6.3/mapstruct-1.6.3.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.3/mapstruct-processor-1.6.3.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.6.3/mapstruct-1.6.3.jar" />
         </processorPath>
         <module name="Microservice-Product" />
-      </profile>
-      <profile name="Annotation profile for Microservice-Order" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
-        </processorPath>
+        <module name="Microservice-Order.test" />
+        <module name="Microservice-Order.main" />
         <module name="Microservice-Order" />
       </profile>
     </annotationProcessing>
@@ -43,7 +34,10 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Microservice-Config-Server" options="-parameters" />
       <module name="Microservice-Eureka-Server" options="-parameters" />
+      <module name="Microservice-Gateway" options="-parameters" />
       <module name="Microservice-Order" options="-parameters" />
+      <module name="Microservice-Order.main" options="-parameters" />
+      <module name="Microservice-Order.test" options="-parameters" />
       <module name="Microservice-Product" options="-parameters" />
       <module name="Microservice-Product.main" options="-parameters" />
       <module name="Microservice-Product.test" options="-parameters" />

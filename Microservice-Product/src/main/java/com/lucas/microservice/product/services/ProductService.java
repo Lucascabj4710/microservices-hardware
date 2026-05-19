@@ -2,6 +2,7 @@ package com.lucas.microservice.product.services;
 
 import com.lucas.microservice.product.dto.ProductDto;
 import com.lucas.microservice.product.dto.ProductDtoResponse;
+import com.lucas.microservice.product.dto.StockRequest;
 import com.lucas.microservice.product.entities.Product;
 import com.lucas.microservice.product.exception.InvalidProductStateException;
 import com.lucas.microservice.product.exception.InvalidStockException;
@@ -37,6 +38,14 @@ public class ProductService{
                 .orElseThrow(()-> new ProductNotFoundException("Producto no encontrado con el nombre " + name));
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductDtoResponse> searchAvailableProductsByNameOrBrand(String value){
+        return productRepository.searchByNameOrBrandAndAvailableTrue(value)
+                .stream()
+                .map(productMapper::toProductDtoResponse)
+                .toList();
+    }
+
 
     @Transactional(readOnly = true)
     public List<ProductDtoResponse> getProducts(){
@@ -67,33 +76,45 @@ public class ProductService{
     }
 
     @Transactional
-    public void changeStatusProduct(Long idProduct, Boolean status){
+    public void toggleStatusProduct(Long idProduct){
 
         Product product = findProductOrThrow(idProduct);
 
-        if (status == null) {
-            throw new IllegalArgumentException("El estado no puede ser nulo");
-        }
-
-        product.setAvailable(status);
+        product.setAvailable(!product.getAvailable());
 
         productRepository.save(product);
     }
 
     @Transactional
-    public void addStock(Long idProduct, Integer quantity){
+    public void addStock(StockRequest stockRequest){
 
-        if (quantity == null || quantity <= 0) {
-            throw new InvalidStockException("La cantidad ha ingresar debe ser mnyor a 0 ");
-        }
-
-        Product product = findProductOrThrow(idProduct);
+        Product product = findProductOrThrow(stockRequest.getIdProduct());
 
         if (product.getStock() == null) {
             throw new InvalidProductStateException("El stock del producto no puede ser nulo");
         }
 
-        product.setStock(product.getStock() + quantity);
+        product.setStock(product.getStock() + stockRequest.getQuantity());
+
+        productRepository.save(product);
+    }
+
+    @Transactional
+    public void discountStock(StockRequest stockRequest){
+
+        Product product = findProductOrThrow(stockRequest.getIdProduct());
+
+        if (product.getStock() == null) {
+            throw new InvalidProductStateException("El stock del producto no puede ser nulo");
+        }
+
+        Integer newStock = product.getStock() - stockRequest.getQuantity();
+
+        if (newStock < 0) {
+            throw new InvalidStockException("Insufficient stock");
+        }
+
+        product.setStock(newStock);
 
         productRepository.save(product);
     }

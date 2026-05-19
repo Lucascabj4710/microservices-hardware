@@ -19,11 +19,6 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping
-    public List<Product> getAllProducts(){
-        return productService.getAllProducts();
-    }
-
     @GetMapping("/id/{id}")
     public Product getProduct(@PathVariable Long id){
         return productService.getProduct(id);
@@ -33,8 +28,5 @@ public class ProductController {
     public Product getProductByName(@PathVariable String name){
         return productService.getProductByName(name);
     }
-
-
-
 
 }

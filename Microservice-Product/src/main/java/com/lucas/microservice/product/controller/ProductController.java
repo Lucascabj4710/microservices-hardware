@@ -2,6 +2,7 @@ package com.lucas.microservice.product.controller;
 
 import com.lucas.microservice.product.dto.ProductDto;
 import com.lucas.microservice.product.dto.ProductDtoResponse;
+import com.lucas.microservice.product.dto.StockRequest;
 import com.lucas.microservice.product.entities.Product;
 import com.lucas.microservice.product.services.ProductService;
 import jakarta.validation.Valid;
@@ -36,6 +37,11 @@ public class ProductController {
         return new ResponseEntity<>(productService.getProducts(), HttpStatus.OK);
     }
 
+    @GetMapping("search/{value}")
+    public ResponseEntity<?> getProductByValue(@PathVariable String value){
+        return new ResponseEntity<>(productService.searchAvailableProductsByNameOrBrand(value), HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<?> addProduct(@Valid @RequestBody ProductDto productDto){
         productService.addProduct(productDto);
@@ -50,10 +56,26 @@ public class ProductController {
         return new ResponseEntity<>("UPDATED", HttpStatus.OK);
     }
 
-  /*  @PatchMapping("/{status}")
-    public ResponseEntity<?> editStatus(@PathVariable Boolean status, @PathVariable Long idProduct){
-        productService.changeStatusProduct(idProduct, status);
+    @PutMapping("/{idProduct}/status")
+    public ResponseEntity<?> toggleStatus(@PathVariable Long idProduct){
 
-        return new ResponseEntity<>("Changed Status", HttpStatus.OK);
-    } */
+        productService.toggleStatusProduct(idProduct);
+
+        return new ResponseEntity<>("Status changed", HttpStatus.OK);
+    }
+
+    @PutMapping("/addStock")
+    public ResponseEntity<?> addStock(@Valid @RequestBody StockRequest stockRequest){
+        productService.addStock(stockRequest);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/discountStock")
+    public ResponseEntity<?> discountStock(@Valid @RequestBody StockRequest stockRequest){
+        productService.discountStock(stockRequest);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+
 }
