@@ -27,6 +27,11 @@ public class ProductController {
         return productService.getProduct(id);
     }
 
+    @PostMapping("/ids")
+    public ResponseEntity<List<ProductDtoResponse>> getProductsByIds(@RequestBody List<Long> ids){
+        return new ResponseEntity<>(productService.getProductsByIds(ids), HttpStatus.OK);
+    }
+
     @GetMapping("/name/{name}")
     public ResponseEntity<ProductDtoResponse> getProductByName(@PathVariable String name){
         return new ResponseEntity<>(productService.getProductByName(name), HttpStatus.OK);
@@ -71,8 +76,8 @@ public class ProductController {
     }
 
     @PutMapping("/discountStock")
-    public ResponseEntity<?> discountStock(@Valid @RequestBody StockRequest stockRequest){
-        productService.discountStock(stockRequest);
+    public ResponseEntity<?> discountStock(@Valid @RequestBody List<StockRequest> stockRequests){
+        productService.discountStock(stockRequests);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

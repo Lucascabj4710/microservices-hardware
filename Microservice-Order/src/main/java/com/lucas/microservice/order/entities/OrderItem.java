@@ -27,11 +27,4 @@ public class OrderItem {
 
     private Double totalPrice;
 
-    @PrePersist
-    @PreUpdate
-    private void calculateTotalPrice(){
-        if (this.quantity != null && this.unitPrice != null) {
-            this.totalPrice = this.quantity * this.unitPrice;
-        }
-    }
 }

@@ -7,11 +7,16 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @FeignClient(name = "microservice-product")
 public interface ProductClient {
 
     @GetMapping("/product/id/{id}")
     Product getProduct(@PathVariable Long id);
+
+    @PostMapping("/product/ids")
+    List<Product> getProductsByIds(@RequestBody List<Long> ids);
 
     @GetMapping("/product/name/{name}")
     Product getProductByName(@PathVariable String name);
@@ -20,7 +25,7 @@ public interface ProductClient {
     public ResponseEntity<?> addStock(@Valid @RequestBody StockRequest stockRequest);
 
     @PutMapping("/product/discountStock")
-    public ResponseEntity<?> discountStock(@Valid @RequestBody StockRequest stockRequest);
+    public ResponseEntity<?> discountStock(@Valid @RequestBody  List<StockRequest> stockRequests);
 
 
 

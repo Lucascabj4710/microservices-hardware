@@ -4,8 +4,10 @@ import com.lucas.microservice.order.dto.OrderItemDto;
 import com.lucas.microservice.order.dto.StockRequest;
 import com.lucas.microservice.order.entities.Order;
 import com.lucas.microservice.order.entities.OrderItem;
+import com.lucas.microservice.order.entities.Product;
 import com.lucas.microservice.order.entities.StatusOrder;
 import com.lucas.microservice.order.exception.InvalidStatusException;
+import com.lucas.microservice.order.exception.ProductNotFoundException;
 import com.lucas.microservice.order.mapper.OrderItemMapper;
 import com.lucas.microservice.order.repository.OrderItemRepository;
 import com.lucas.microservice.order.repository.OrderRepository;
@@ -13,7 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service @Slf4j
 public class OrderService {
@@ -34,29 +39,60 @@ public class OrderService {
     public void createOrder(List<OrderItemDto> orderItemDtos){
 
         Order order = new Order();
-        Order savedOrder = orderRepository.save(order);
 
-        List<OrderItem> orderItems = orderItemDtos.stream().map(orderItemMapper::toOrderItem).toList();
+        // Lista de Cantidades sin ID de productos repetidos
+        Map<Long, Integer> quantityDistinct = orderItemDtos.stream()
+                .collect(Collectors.toMap(OrderItemDto::getProductId,
+                        OrderItemDto::getQuantity,
+                        Integer::sum));
+
+
+        List<Long> idsProducts = orderItemDtos.stream()
+                .map(OrderItemDto::getProductId)
+                .distinct()
+                .toList();
+
+
+        Map<Long,Product> products = productService.getProductsByIds(idsProducts)
+                .stream()
+                .collect(Collectors.toMap(Product::getId, product -> product));
+
+        List<StockRequest> stockRequestList = new ArrayList<>();
+        List<OrderItem> orderItemList = new ArrayList<>();
+
+        if (products.size() < idsProducts.size()){
+            throw new ProductNotFoundException("One or more requested products do not exist in the catalog.");
+        }
 
         Double totalPrice = 0.0;
 
-        for (OrderItem orderItem : orderItems){
+        for (Long idProduct : idsProducts){
+            OrderItem orderItem = new OrderItem();
             StockRequest stockRequest = new StockRequest();
 
-            totalPrice += orderItem.getUnitPrice() * orderItem.getQuantity();
-            orderItem.setOrder(savedOrder);
+            Product product = products.get(idProduct);
 
-            stockRequest.setIdProduct(orderItem.getProductId());
-            stockRequest.setQuantity(orderItem.getQuantity());
+            orderItem.setOrder(order);
+            orderItem.setUnitPrice(product.getPrice());
+            orderItem.setTotalPrice(product.getPrice() * quantityDistinct.get(product.getId()));
+            orderItem.setQuantity(quantityDistinct.get(product.getId()));
+            orderItem.setProductId(product.getId());
 
-            productService.discountStock(stockRequest);
+            stockRequest.setIdProduct(product.getId());
+            stockRequest.setQuantity(quantityDistinct.get(product.getId()));
+
+            stockRequestList.add(stockRequest);
+
+            orderItemList.add(orderItem);
+            totalPrice += product.getPrice() * quantityDistinct.get(product.getId());
 
         }
 
-        savedOrder.setTotalPrice(totalPrice);
-        savedOrder.setStatusOrder(StatusOrder.IN_PROCESS);
-        orderRepository.save(savedOrder);
-        orderItemRepository.saveAll(orderItems);
+        productService.discountStock(stockRequestList);
+        order.setTotalPrice(totalPrice);
+        order.setStatusOrder(StatusOrder.IN_PROCESS);
+        orderRepository.save(order);
+        orderItemRepository.saveAll(orderItemList);
     }
 
     public List<Order> getOrders(){

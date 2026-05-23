@@ -18,8 +18,4 @@ public class OrderItemDto {
     @Positive(message = "Quantity must be greater than zero")
     private Integer quantity;
 
-    @NotNull(message = "UnitPrice is required")
-    @Positive(message = "UnitPrice must be greater than zero")
-    private Double unitPrice;
-
 }

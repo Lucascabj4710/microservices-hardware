@@ -9,6 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor @NoArgsConstructor
 public class Product {
 
+    private Long id;
     private String name;
     private String brand;
     private Integer stock;

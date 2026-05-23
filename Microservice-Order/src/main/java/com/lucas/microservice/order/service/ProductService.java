@@ -22,6 +22,11 @@ public class ProductService {
         return productClient.getProduct(id);
     }
 
+    @Transactional
+    public List<Product> getProductsByIds(List<Long> ids){
+        return productClient.getProductsByIds(ids);
+    }
+
     @Transactional(readOnly = true)
     public Product getProductByName(String name){
         return productClient.getProductByName(name);
@@ -33,8 +38,8 @@ public class ProductService {
     }
 
     @Transactional
-    public void discountStock(StockRequest stockRequest){
-        productClient.discountStock(stockRequest);
+    public void discountStock( List<StockRequest> stockRequests){
+        productClient.discountStock(stockRequests);
     }
 
 }

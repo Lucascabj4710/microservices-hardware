@@ -36,6 +36,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ApiError> handleInvalidStockException(InsufficientStockException exception){
+        ApiError apiError = new ApiError();
+
+        apiError.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
+        apiError.setStatus(HttpStatus.BAD_REQUEST.value());
+        apiError.setTimestamp(LocalDateTime.now());
+        apiError.setMessage(exception.getMessage());
+
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ApiError> handleProductNotFoundException(ProductNotFoundException exception) {
         ApiError apiError = new ApiError();
