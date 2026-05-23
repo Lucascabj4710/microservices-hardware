@@ -1,11 +1,13 @@
 package com.lucas.microservice.product.exception;
 
 import jakarta.validation.ValidationException;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.time.LocalDateTime;
 
@@ -73,6 +75,25 @@ public class GlobalExceptionHandler {
                 .getFieldError()
                 .getDefaultMessage();
 
+        apiError.setMessage(message);
+
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ApiError> handleHandlerMethodValidationException(HandlerMethodValidationException exception) {
+        
+        String message = "Error de validación en los parámetros de la petición.";
+
+        if (exception.getAllErrors() != null && !exception.getAllErrors().isEmpty()) {
+            MessageSourceResolvable firstError = exception.getAllErrors().get(0);
+            message = firstError.getDefaultMessage();
+        }
+
+        ApiError apiError = new ApiError();
+        apiError.setTimestamp(LocalDateTime.now());
+        apiError.setStatus(HttpStatus.BAD_REQUEST.value());
+        apiError.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
         apiError.setMessage(message);
 
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
