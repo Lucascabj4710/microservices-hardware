@@ -70,8 +70,8 @@ public class ProductController {
     }
 
     @PutMapping("/addStock")
-    public ResponseEntity<?> addStock(@Valid @RequestBody StockRequest stockRequest){
-        productService.addStock(stockRequest);
+    public ResponseEntity<?> addStock(@Valid @RequestBody List<StockRequest> stockRequests){
+        productService.addStock(stockRequests);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -22,7 +22,7 @@ public interface ProductClient {
     Product getProductByName(@PathVariable String name);
 
     @PutMapping("/product/addStock")
-    public ResponseEntity<?> addStock(@Valid @RequestBody StockRequest stockRequest);
+    public ResponseEntity<?> addStock(@Valid @RequestBody List<StockRequest> stockRequests);
 
     @PutMapping("/product/discountStock")
     public ResponseEntity<?> discountStock(@Valid @RequestBody  List<StockRequest> stockRequests);

@@ -33,8 +33,8 @@ public class ProductService {
     }
 
     @Transactional
-    public void addStock(StockRequest stockRequest){
-        productClient.addStock(stockRequest);
+    public void addStock(List<StockRequest> stockRequests){
+        productClient.addStock(stockRequests);
     }
 
     @Transactional

@@ -105,19 +105,33 @@ public class ProductService{
     }
 
     @Transactional
-    public void addStock(StockRequest stockRequest){
+    public void addStock(List<StockRequest> stockRequests){
 
         log.warn("INICIANDO METODO ADD STOCK");
 
-        Product product = findProductOrThrow(stockRequest.getIdProduct());
+        List<Long> idsProducts = stockRequests.stream()
+                .map(StockRequest::getIdProduct)
+                .toList();
 
-        if (product.getStock() == null) {
-            throw new InvalidProductStateException("El stock del producto no puede ser nulo");
+        List<Product> productList = findProductsByIdsInternal(idsProducts);
+
+        if (productList.size() < idsProducts.size()){
+            throw new ProductNotFoundException("One or more Products do not exists in the catalog");
         }
 
-        product.setStock(product.getStock() + stockRequest.getQuantity());
+        Map<Long, StockRequest> stockRequestMap = stockRequests.stream()
+                .collect(Collectors.toMap(
+                        StockRequest::getIdProduct,
+                        stockRequest -> stockRequest
+                ));
 
-        productRepository.save(product);
+        for (Product product : productList){
+            StockRequest stockRequest = stockRequestMap.get(product.getId());
+            product.setStock(product.getStock() + stockRequest.getQuantity());
+        }
+
+        productRepository.saveAll(productList);
+
     }
 
     @Transactional
@@ -165,6 +179,10 @@ public class ProductService{
         return productRepository.findProductByIdIn(ids)
                 .stream().map(productMapper::toProductDtoResponse)
                 .toList();
+    }
+
+    private List<Product> findProductsByIdsInternal(List<Long> ids){
+        return productRepository.findProductByIdIn(ids);
     }
 
 

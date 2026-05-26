@@ -7,6 +7,7 @@ import com.lucas.microservice.order.entities.OrderItem;
 import com.lucas.microservice.order.entities.Product;
 import com.lucas.microservice.order.entities.StatusOrder;
 import com.lucas.microservice.order.exception.InvalidStatusException;
+import com.lucas.microservice.order.exception.OrderNotFoundException;
 import com.lucas.microservice.order.exception.ProductNotFoundException;
 import com.lucas.microservice.order.mapper.OrderItemMapper;
 import com.lucas.microservice.order.repository.OrderItemRepository;
@@ -113,6 +114,33 @@ public class OrderService {
         } catch (IllegalArgumentException e) {
             throw new InvalidStatusException("Invalid status");
         }
+    }
+
+    @Transactional
+    public void canceledOrder(String status, Long idOrder){
+
+        if (!status.toUpperCase().equals(StatusOrder.CANCELED.name())){
+            throw new InvalidStatusException("Status INVALID");
+        }
+
+        Order order = orderRepository.findById(idOrder)
+                .orElseThrow(()-> new OrderNotFoundException("The requested Order does not exists"));
+
+        List<StockRequest> stockRequestList = orderItemRepository.findByOrder_Id(idOrder)
+                        .stream()
+                        .map(orderItem -> {
+                            StockRequest stockRequest = new StockRequest();
+                            stockRequest.setIdProduct(orderItem.getProductId());
+                            stockRequest.setQuantity(orderItem.getQuantity());
+
+                            return stockRequest;
+                        }).toList();
+
+        productService.addStock(stockRequestList);
+        order.setStatusOrder(StatusOrder.CANCELED);
+
+        orderRepository.save(order);
+
     }
 
 }

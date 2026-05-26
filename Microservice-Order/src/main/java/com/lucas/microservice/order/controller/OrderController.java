@@ -30,9 +30,15 @@ public class OrderController {
         return new ResponseEntity<>(orderService.getOrders(), HttpStatus.OK);
     }
 
-    @GetMapping("status/{status}")
+    @GetMapping("/status/{status}")
     public ResponseEntity<?> getOrdersByStatus(@PathVariable String status){
         return new ResponseEntity<>(orderService.getOrdersByStatus(status), HttpStatus.OK);
+    }
+
+    @PutMapping("/{idOrder}")
+    public ResponseEntity<?> canceledOrder(@PathVariable Long idOrder, @RequestParam String status){
+        orderService.canceledOrder(status, idOrder);
+        return new ResponseEntity<>("CANCELED ORDER", HttpStatus.OK);
     }
 
 }
