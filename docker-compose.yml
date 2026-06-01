@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  mysql-product:
+    image: mysql:8.0
+    container_name: mysql-product
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: product_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - product_db_data:/var/lib/mysql
+    networks:
+      - hardware-net
+
+  mysql-order:
+    image: mysql:8.0
+    container_name: mysql-order
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: order_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - order_db_data:/var/lib/mysql
+    networks:
+      - hardware-net
+
+  config-server:
+    build:
+      context: ./Microservice-Config-Server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - hardware-net
+
+  eureka-server:
+    build:
+      context: ./Microservice-Eureka-Server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+    networks:
+      - hardware-net
+
+  ms-product:
+    build:
+      context: ./Microservice-Product
+    container_name: ms-product
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql-product
+      - config-server
+      - eureka-server
+    environment:
+      - SERVER_PORT=8081
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-product:3306/product_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - hardware-net
+
+  ms-order:
+    build:
+      context: ./Microservice-Order
+    container_name: ms-order
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mysql-order
+      - config-server
+      - eureka-server
+    environment:
+      - SERVER_PORT=8082
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-order:3306/order_db
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - hardware-net
+
+networks:
+  hardware-net:
+    driver: bridge
+
+volumes:
+  product_db_data:
+  order_db_data:
