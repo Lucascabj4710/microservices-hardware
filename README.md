@@ -39,6 +39,8 @@ Todos los servicios se registran en Eureka para discovery con balanceo de carga.
 | `Microservice-Product` | 8081 | Catálogo de productos — CRUD, control de stock, búsqueda |
 | `Microservice-Order` | 8082 | Gestión de pedidos — creación, cancelación, transiciones de estado |
 
+> El Gateway también está incluido en Docker Compose como `api-gateway` y arranca junto a Product y Order, dependiendo de Config Server y Eureka.
+
 ---
 
 ## Stack Tecnológico
