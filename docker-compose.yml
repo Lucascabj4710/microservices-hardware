@@ -85,6 +85,22 @@ services:
     networks:
       - hardware-net
 
+  api-gateway:
+    build:
+      context: ./Microservice-Gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - config-server
+      - eureka-server
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - hardware-net
+
 networks:
   hardware-net:
     driver: bridge
